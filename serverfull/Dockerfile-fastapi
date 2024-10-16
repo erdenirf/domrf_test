@@ -1,0 +1,29 @@
+FROM python:3.12.5-bullseye
+
+WORKDIR /app
+
+COPY requirements.txt /app
+
+RUN pip3 install -r requirements.txt
+
+COPY . /app
+
+EXPOSE 8080
+
+
+ARG ENCODING_MODEL=cl100k_base
+# change this to force a re-download of the encoding
+ARG ENCODING_CACHE_BUST=1
+# don't use /tmp, because a cloud provider may mount ephemeral storage there,
+# overwriting our cache
+ENV TIKTOKEN_CACHE_DIR=/usr/local/share/tiktoken
+ENV TIKTOKEN_ENCODING_URL=https://openaipublic.blob.core.windows.net/encodings/${ENCODING_MODEL}.tiktoken
+RUN mkdir -p $TIKTOKEN_CACHE_DIR && \
+    curl -L $TIKTOKEN_ENCODING_URL?cache=$ENCODING_CACHE_BUST > \
+    $TIKTOKEN_CACHE_DIR/$( \
+    python -c "import sys; import hashlib; print(hashlib.sha1(sys.argv[1].encode()).hexdigest())" \
+    $TIKTOKEN_ENCODING_URL \
+    )
+
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

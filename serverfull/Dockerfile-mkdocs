@@ -1,0 +1,13 @@
+FROM python:3.12.2-alpine3.19
+
+WORKDIR /app
+
+COPY requirements.txt /app
+
+RUN pip3 install -r requirements.txt
+
+COPY . /app
+
+EXPOSE 8000
+
+CMD ["mkdocs", "serve", "--dev-addr", "0.0.0.0:8000"]

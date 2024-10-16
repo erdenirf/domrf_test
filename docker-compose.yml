@@ -1,0 +1,46 @@
+services:
+
+  python-docs:
+    container_name: python-docs
+    build:
+      context: ./serverfull
+      dockerfile: ./Dockerfile-mkdocs
+    restart: always
+    ports:
+      - "8000:8000"
+    networks:
+      - network-bridge
+
+  qdrant:
+    image: qdrant/qdrant:v1.12.1
+    container_name: qdrant
+    restart: always
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_data:/qdrant/storage
+    networks:
+      - network-bridge
+    env_file:
+      - ./serverfull/.env
+
+  fastapi-backend:
+    container_name: fastapi-backend 
+    build:
+      context: ./serverfull
+      dockerfile: ./Dockerfile-fastapi
+    restart: always
+    env_file:
+      - ./serverfull/.env
+    ports:
+      - "8080:8080"
+    networks:
+      - network-bridge
+
+
+networks:
+  network-bridge:
+    driver: bridge
+
+volumes:
+  qdrant_data:
