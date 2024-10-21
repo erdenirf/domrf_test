@@ -3,7 +3,7 @@ services:
   python-docs:
     container_name: python-docs
     build:
-      context: ./serverfull
+      context: ./server
       dockerfile: ./Dockerfile-mkdocs
     restart: always
     ports:
@@ -22,16 +22,16 @@ services:
     networks:
       - network-bridge
     env_file:
-      - ./serverfull/.env
+      - ./server/.env
 
   fastapi-backend:
     container_name: fastapi-backend 
     build:
-      context: ./serverfull
+      context: ./server
       dockerfile: ./Dockerfile-fastapi
     restart: always
     env_file:
-      - ./serverfull/.env
+      - ./server/.env
     ports:
       - "8080:8080"
     networks:
